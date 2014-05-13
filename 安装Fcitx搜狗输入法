@@ -1,0 +1,51 @@
+1.删除系统原有的输入法
+
+Ubuntu下默认安装了ibus，因此先删除它。并且对已经安装的老版fcitx同时也要删掉再重新安装。
+
+$ sudo apt-get remove ibus
+$ sudo apt-get remove fcitx*
+
+删除依赖库并检查fcitx是否已经删除：
+
+$ sudo apt-get autoremove
+$ dpkg --get-selections | grep fcitx
+
+2.添加deepin源 然后刷新软件源:
+
+
+$ sudo gedit /etc/apt/sources.list
+
+####Linux Deepin 特有源####
+deb http://packages.linuxdeepin.com/ubuntu precise main restricted universe multiverse
+deb http://packages.linuxdeepin.com/ubuntu precise-security main restricted universe multiverse
+deb http://packages.linuxdeepin.com/ubuntu precise-updates main restricted universe multiverse
+deb-src http://packages.linuxdeepin.com/ubuntu precise main restricted universe multiverse
+deb-src http://packages.linuxdeepin.com/ubuntu precise-security main restricted universe multiverse
+deb-src http://packages.linuxdeepin.com/ubuntu precise-updates main restricted universe multiverse
+deb http://mirrors.linuxstory.org/deepin precise main non-free
+deb-src http://mirrors.linuxstory.org/deepin precise main non-free
+deb http://mirrors.linuxstory.org/deepin precise-updates main non-free
+deb-src http://mirrors.linuxstory.org/deepin precise-updates main non-free
+
+$ sudo apt-get update
+
+3.安装搜狗输入法
+以我们需要从以下网址下载 http://packages.linuxdeepin.com/deepin/pool/main/f/fcitx-sogoupinyin-release/
+$ sudo apt-get install gdebi
+$ sudo apt-get install fcitx fcitx-bin fcitx-config-common fcitx-config-gtk fcitx-data fcitx-frontend-gtk2 fcitx-frontend-gtk3 fcitx-frontend-qt4 fcitx-googlepinyin fcitx-libs fcitx-module-dbus fcitx-module-x11 fcitx-modules fcitx-pinyin fcitx-table fcitx-table-wubi fcitx-ui-classic
+$ sudo gdebi fcitx-sogoupinyin_0.0.1-2_amd64.deb
+
+4.设置fcitx为默认输入法
+$ im-switch -s fcitx -z default
+$ sudo im-switch -s fcitx -z default
+
+如果没有im-switch命令请自行安装：sudo apt-get install im-switch。
+5.注销或者重启使设置生效
+
+6.有一定几率出现输入法乱码
+进入fcitx的输入法配置，有一个外观选项
+
+字体-点击清除字体设置-然后点击中间，就会选择字体，拉到最后选择,文泉驿xxxx
+菜单字体-点击清除字体设置-然后点击中间，就会选择字体，拉到最后选择,文泉驿xxxx
+然后点击应用既OK
+
