@@ -1,11 +1,6 @@
 git format-patch -x   生成最后x个提交对应的patch文件。
 diff -Nrua   a  b > c.patch
-git commit -m fixkey
-git diff HEAD > system_core.patch
-git diff HEAD > hardware_libhardware.patch
-git diff HEAD > hardware_libhardware_legacy.patch
-git diff HEAD > frameworks_av.patch
-git diff HEAD > frameworks_native.patch
+git commit -m "xx"
 
 git config --global user.name "Your Name" 
 git config --global user.email you@yourdomain.example.com 
@@ -30,6 +25,11 @@ git diff 分支名 分支名       #比较主分支和另一个分支的区别
 git-show-branch             #查看当前分支的提交注释及信息） 
 git-show-branch -all        #查看所有分支的提交注释及信息）
 git whatchanged             #查看当前分支的操作记录 
+git config --global color.ui true   高亮
+
+
+
+
 
 git checkout master &&  git merge cm10      #合并分支 cm10 分支 to master
 git checkout master   （切换到master分支） git merge HEAD ics (合并master分支和ics分支)或者：git merge master ics            #合并分支 
