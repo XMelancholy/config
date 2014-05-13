@@ -184,6 +184,7 @@ $ chmod a+x ~/bin/repo
 
 万事具备只欠源码了！下章继续讲！！！
 
+
 换源  
 $ sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
 $ sudo gedit /etc/apt/sources.list
@@ -231,3 +232,4 @@ ssh -T git@github.com
 
 
 185.31.16.184 github.global.ssl.fastly.net
+

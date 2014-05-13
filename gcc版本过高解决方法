@@ -1,0 +1,11 @@
+sudo apt-get install gcc-4.4
+sudo apt-get install g++-4.4
+
+cd /usr/bin
+ls -l gcc*
+sudo mv gcc gcc.bak
+sudo ln -s gcc-4.4 gcc
+ls -l g++*
+sudo mv g++ g++.bak
+sudo ln -s g++-4.4 g++
+

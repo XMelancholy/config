@@ -1,0 +1,56 @@
+git clone git://github.com/CyanogenMod/android_build.git -b ics
+
+
+
+PatchRom Miui
+2.3	repo init -u git://github.com/MiCode/patchrom.git -b gingerbread
+4.0	repo init -u git://github.com/MiCode/patchrom.git -b ics
+4.1	repo init -u git://github.com/MiCode/patchrom.git -b jellybean
+42	repo init -u git://github.com/MiCode/patchrom.git -b jellybean42
+42MTK	repo init -u git://github.com/MiCode/patchrom.git -b jellybean42-mtk
+
+PatchRom Lewa
+4.1	repo init -u git://github.com/LeWaCode/patchrom.git -b jellybean
+42	repo init -u git://github.com/LeWaCode/patchrom.git -b jellybean42
+
+Cyanogen Mod
+2.3	repo init -u git://github.com/CyanogenMod/android.git -b gingerbread
+4.0	repo init -u git://github.com/CyanogenMod/android.git -b ics
+4.1	repo init -u git://github.com/CyanogenMod/android.git -b jellybean
+4.2	repo init -u git://github.com/CyanogenMod/android.git -b cm-10.1
+4.3	repo init -u git://github.com/CyanogenMod/android.git -b cm-10.2
+4.4	repo init -u git://github.com/CyanogenMod/android.git -b cm-11.0
+
+Mokee
+4.1	repo init -u ssh://[username]@review.mfunz.com:29418/MoKee/android.git -b jb_mkt
+4.2	repo init -u ssh://[username]@review.mfunz.com:29418/MoKee/android.git -b jb-mr1_mkt
+4.3	repo init -u ssh://[username]@review.mfunz.com:29418/MoKee/android.git -b jb-mr2_mkt
+4.4	repo init -u ssh://[username]@review.mfunz.com:29418/MoKee/android.git -b kk_mkt
+
+ShenduOS
+4.1	repo init -u git://github.com/ShenduOS/android.git -b jellybean
+
+
+Aokp
+
+4.0	repo init -u https://github.com/AOKP/platform_manifest.git -b ics
+4.1	repo init -u https://github.com/AOKP/platform_manifest.git -b jb
+4.2	repo init -u https://github.com/AOKP/platform_manifest.git -b jb-mr1
+4.3	repo init -u https://github.com/AOKP/platform_manifest.git -b jb-mr2
+4.4	repo init -u https://github.com/AOKP/platform_manifest.git -b kitkat
+
+
+AOSP
+4.1	repo init -u https://android.googlesource.com/platform/manifest -b android-4.1.2_r2.1 
+
+4.4.2	repo init -u https://android.googlesource.com/platform/manifest -b android-4.2.2_r1.2
+	repo init -u https://android.googlesource.com/platform/manifest -b android-4.4_r1.2
+
+SlimROMs
+4.1	repo init -u git://github.com/SlimRoms/platform_manifest.git -b jb
+
+
+
+
+
+

@@ -1,0 +1,286 @@
+
+
+1: 调试wifi
+
+adb shell
+busybox ifconfig 主要查看是否有ＩＰ
+ping IP          看看通不通
+如果能Ping通则说明底层wifi设备与AP是连接通的。所以把问题转向上层。上层在frameworks/base/services/java/com/android/server/ConnectivityService.java文件中查看private void handleDisconnect(NetworkInfo info)函数的实现，问题可能出现在这里。
+
+2： wifi的设置里面选中wifi选项出现ERRO（或错误）的提示
+首先在adb shell中lsmod查看.ko文件是否已经加载。如没加载cat /proc/kmsg查看是否是版本匹配的问题。如遇版本匹配则在kernel/scripts/setlocalversion中将echo “+”中去掉。如果顺利加载了驱动，则要看看MAC地址是否有，并且是否合理
+
+3： 连接成功之后，WIFI显示的状态不是“已连接到*”而是“正在扫描”，此时WIFI网络一栏没有出现扫描中的图标
+此问题主要出现在Hal层的wifi.c文件中的函数int wifi_wait_for_event(char *buf, size_t buflen)，这个函数主要向上层报数据或命令的操作，向上层报数据或命令的函数是wpa_ctrl_recv(monitor_conn, buf, &nread)，这个函数把数据或命令保存在buf中。问题就出现在向上层报数据的buf中，我们必须把向上报数据或指令的buf由先前的state=1和state=2两种状态改为state=2一种状态，这样图标就会只显示“正在扫描”一种状态了。
+
+
+
+1: 蓝牙调试
+Bluetooth(Android 4.1)问题汇总  
+1．在查问题之前，需先掌握这些东西：  捕
+捉 LOG  Kernel 的启动LOG， 在串口中会有输出， 
+蓝牙的 rfkill-rk 驱动， 其打印以字符串 可搜索之；如
+果你用“adb shell”来查看 log，可先切换到 root 后，用“cat /proc/kmsg” 打印kernel 的LOG。  
+Android 中关于蓝牙的 LOG，可通过如下命令打印：   logcat -s blue* Blue* Bt* bt* &   
+如果你的 Android 的 logcat 命令不支持星号通配符，请修改system/core/liblog/logprint.c 文件，如下所示：  
+static android_LogPriority filterPriForTag( 
+AndroidLogFormat *p_format, const char *tag) 
+{
+   FilterInfo *p_curFilter;  
+   for (p_curFilter = 
+   p_format->filters;  
+   p_curFilter != NULL;   
+   p_curFilter = p_curFilter->p_next)  
+   {  
+       if ((p_curFilter->mTag[strlen(p_curFilter->mTag)-1] == '*' &&  
+            0 == strncmp(tag, p_curFilter->mTag, strlen(p_curFilter->mTag)-1)) || 
+       (0 == strcmp(tag, p_curFilter->mTag)))  
+       {  
+          if (p_curFilter->mPri == ANDROID_LOG_DEFAULT) { 
+          return p_format->global_pri; 
+          } else {  
+          return p_curFilter->mPri; 
+          }  
+          } 
+          }  
+          return p_format->global_pri;  
+          }   
+
+
+2．命令行启动蓝牙  通过su 命令切换到root 用户 
+1、 先确认 RFKILL 驱动已经加载  ls /sys/class/rfkill/rfkill0/   
+如果没有找到rfkill0 这个目录，说明蓝牙驱动有问题。
+检查kernel中的蓝牙选项是否有勾选了 请查看kernel的打印信息。 
+2、关闭蓝牙：
+在 Settings 界面中关闭蓝牙
+给蓝牙设备下电
+echo 0 > /sys/class/rfkill/rfkill0/state
+关闭 bluetoothd 和hciattach 这两个service： 
+setprop ctl.stop bluetoothd
+setprop ctl.stop bluetoothd-snoop
+setprop ctl.stop hciattach
+setprop ctl.stop ste-cg29xx_ctrl
+
+setprop ctl.stop init_ste-cg2900
+
+setprop ctl.start ste-cg29xx_ctrl
+
+确定蓝牙已经关闭之后，手动给蓝牙上电： 
+echo 1 > /sys/class/rfkill/rfkill0/state
+
+下载蓝牙固件  
+Broadcomd 系列芯片使用命令：  
+brcm_patchram_plus --patchram bychip --baudrate 1500000 --enable_lpm --enable_hci /dev/ttyS0 -d &
+如果蓝牙硬件及驱动没有问题，那么在这步执行完成后可以看到打印： 
+E/bluetooth_brcm( 402): Done setting line discipline
+确认 hci0 interface 已经创建： 
+# /system/bin/hciconfig -a
+hci0: Type: BR/EDR Bus: UART 
+BD Address: 20:00:00:00:01:09 ACL MTU: 1021:7 SCO MTU: 64:1 
+DOWN 
+RX bytes:485 acl:0 sco:0 events:18 errors:0 
+TX bytes:95 acl:0 sco:0 commands:18 errors:0 
+Features: 0xff 0xff 0x8f 0xfe 0x9b 0xff 0x79 0x87 
+Packet type: DM1 DM3 DM5 DH1 DH3 DH5 HV1 HV2 HV3 
+Link policy: RSWITCH HOLD SNIFF PARK 
+Link mode: SLAVE ACCEPT
+
+激活蓝牙 
+# hciconfig hci0 up 
+
+确认蓝牙激活成功 
+# hcitool dev
+Devices: 
+hci0 20:00:00:00:01:09 
+
+蓝牙激活成功后，可以开始扫描周围的蓝牙设备
+# hcitool scan
+Scanning ...
+90:C1:15:0F:C2:78 Xperia neo
+
+蓝牙打开失败
+可从如下步骤去查
+软件配置是否正确？
+先确定是否按第3 节的android, kernel 具体配置。
+
+从命令行启动蓝牙，观察出错的位置  
+E/bluetooth_brcm( 1615): Cannot open "/data/misc/bluetoothd/bt_addr": No such file or directory 
+D/bluetooth_brcm( 1615): bd_addr: 20:00:00:00:01:0B  
+D/bluetooth_brcm( 1615): Read default bdaddr of 20:00:00:00:01:0B 
+D/bluetooth_brcm( 1615): Get hcd file by BT chip!  
+D/bluetooth_brcm( 1615): hcd file: /system/etc/bluez/rk903.hcd 
+D/bluetooth_brcm( 1615): /dev/ttyS0
+
+--- a 发送 reset 指令 ---  
+E/bluetooth_brcm( 1615): writing E/bluetooth_brcm( 1615): 01 03 0c 00 
+E/bluetooth_brcm( 1615): received 7  
+E/bluetooth_brcm( 1615): 04 0e 04 01 03 0c 00 
+E/bluetooth_brcm( 1615): writing 
+E/bluetooth_brcm( 1615): 01 2e fc 00 
+E/bluetooth_brcm( 1615): received 7  
+E/bluetooth_brcm( 1615): 04 0e 04 01 2e fc 00 
+--- b 读取蓝牙固件的内容并发送给蓝牙芯片 ---
+
+--- c 发送 reset 指令 ---  
+E/bluetooth_brcm( 2072): writing 
+E/bluetooth_brcm( 2072): 01 03 0c 00 
+E/bluetooth_brcm( 2072): received 7  
+E/bluetooth_brcm( 2072): 04 0e 04 01 03 0c 00 
+--- d 复位完成后，设置波特率 --- 
+E/bluetooth_brcm( 2072): writing  
+E/bluetooth_brcm( 2072): 01 18 fc 06 00 00 60 e3 16 00 
+E/bluetooth_brcm( 2072): received 7  
+E/bluetooth_brcm( 2072): 04 0e 04 01 18 fc 00 
+E/bluetooth_brcm( 2072): Done setting baudrate
+E/bluetooth_brcm( 1615): writing  
+E/bluetooth_brcm( 1615): 01 27 fc 0c 01 01 01 01 01 01 01 00 00 00 00 00 
+E/bluetooth_brcm( 1615): received 7  
+E/bluetooth_brcm( 1615): 04 0e 04 01 27 fc 00  
+E/bluetooth_brcm( 1615): Done setting line discpline 
+D/bluetooth_brcm( 1615): total used:3.605s 
+在a 出错：意味着与蓝牙芯片通过UART 通信失败，可能问题： 蓝牙实际没有上电，IO配置错误 UART接线有问题，UART 的状态不对，可
+测量UART 的 4个脚  
+
+在 b 出错：说明蓝牙芯片上电成功了，但 UART 通信存在问题，应检查 UART  
+
+在 c 出错：在RK29+BCM4329 中，由于UART 的 Rx/Tx 没有加上拉，要求在执行 reset之前要先读取一个 byte read(uart_fd, buffer, 1);
+
+在 d 出错：可能是 BT_WAKE 这个IO 的被设置成了 disable，导致蓝牙挂起，无法 通讯；可测量该IO电平。
+
+C. 如果查不出问题，此时应检查晶振的频偏及振幅是否满足要求。
+
+蓝牙设备配对失败  确认32.768k rtc clock 的精度与幅度
+
+晶振：  32.768KHz 晶振，我们的推荐是 从 PMU 引出，RK29其峰峰值： 0.2 ~ 1.8 V 推荐频偏200ppm， 即 32762 ~ 32774，1ppm=1/10^6  如是RK903 模块，要求 26MHz 晶振，其频偏不能偏超过520Hz 
+5. 文件传输失败  确认文件的类型，是否Android 支持的类型：  
+如 果 需 要增 加 接 受 文 件 类 型 的 支 持 ， 
+需 要 在 packages/apps/Bluetooth/src/com/android/bluetooth/opp/Constants.java 
+的 ACCEPTABLE_SHARE_INBOUND_TYPES 
+数组里增加相应的 data
+style;  public static final String[] ACCEPTABLE_SHARE_INBOUND_TYPES = new String[] { "image/*", "video/*", "audio/*", "text/x-vcard", "text/plain", "text/html",  "application/zip",  "application/vnd.ms-excel", "application/msword",  "application/vnd.ms-powerpoint", "application/pdf", }; 
+
+
+
+
+
+关键进程启动失败的处理关键进程
+往往在拼包完之后，发现不能起机，这个时候需要看以下的关键进程是否都起来了（用adb shell ps查看）：
+  进程名
+  	  作用
+  	  如果没有正常起来会有什么现象
+  
+  surfaceflinger
+  	  负责屏幕显示的服务
+  	  开机动画不能work，不能起机
+  
+  mediaserver
+  	  负责相机、声音、多媒体相关的服务
+  	  没有声音，不能起机
+  
+  zygote
+  	  负责启动java层的服务、app
+  	  不能起机，可以通过跑app_process来验证
+  
+  servicemanager
+  	  服务管理
+  	  不能起机
+  
+  vold
+  	  Sdcard挂载
+  	  可以正常起机，但sdcard挂载会有问题
+  
+  rild、gsm0710muxd、ccci_fsd、ccci_mdinit
+  	  Modem相关，会影响电话、短信
+  	  可以正常起机，但电话不能用
+  
+当然具体什么进程能影响不能起机，关键还的看init.rc的配置，不同的机型可能会有差别。如果这些进程都正常起来了，系统还是不能起机，这个时候你需要对比一下原生起来的进程跟你的有什么差异了，是不是比你的要多一些进程！
+
+关键进程启动失败的处理方法
+如果有进程不能正常起机，或者你发现它的进程id不停地在变化，说明这个进程是有问题的！
+解决办法：
+adb shell后，手动执行进程，看有什么错误。
+比如surfaceflinger没有起来，执行以下命令：
+adb shell
+surfaceflinger
+
+1、  缺少so库：
+比如我手动删掉了libcamdrv.so库，然后在adb shell之后运行mediaserver，就会出现如下信息：
+soinfo_link_image(linker.cpp:1635):could not load library "libmediaplayerservice.so" needed by "mediaserver";caused by soinfo_link_image(linker.cpp:1635): could not load library"libstagefright.so" needed by "libmediaplayerservice.so";caused by soinfo_link_image(linker.cpp:1635): could not load library"libskia.so" needed by "libstagefright.so"; caused bysoinfo_link_image(linker.cpp:1635): could not load library"libmhalImageCodec.so" needed by "libskia.so"; caused bysoinfo_link_image(linker.cpp:1635): could not load library"libJpgDecPipe.so" needed by "libmhalImageCodec.so"; causedby soinfo_link_image(linker.cpp:1635): could not load library"libcamdrv.so" needed by "libJpgDecPipe.so"; caused byload_library(linker.cpp:745): library "libcamdrv.so" nCANNOT LINKEXECUTABLE
+       这种信息需要从后面往前看，可以很轻松地看出是找不到libcamdrv.so库。
+
+2、  缺少函数：
+       少函数的提示信息跟缺少so库的类似，你也只需要从后面往前看，找到对应的函数名称，然后去grep，找到对应的so，然后push进去。当然C++的函数名比较长，不过没有关系，一样可以搜索出来的。
+
+3、  段错误（Segmentationfault）：
+       当你手动运行某个进程，出现“Segmentationfault”的提示，或者用adb logcat看到有一堆DEBUG的log时，则表示有段错误！
+比如，有一下DEBUG的log，下面是其中的backtrace片段：
+    I/DEBUG   (  580): backtrace:
+    I/DEBUG   (  580):     #00 pc 00011a50 /system/lib/libcamdrv.so(ImgSensorDrv::getCurrentSensorType(SENSOR_DEV_ENUM)+75)
+    I/DEBUG   (  580):    #01  pc 0001302b  /system/lib/libcamdrv.so(ImgSensorDrv::impSearchSensor(int (*)())+422)
+    I/DEBUG   (  580):    #02  pc 000133ed  /system/lib/libcamdrv.so(SensorDrv::searchSensor(int (*)())+14)
+    I/DEBUG   (  580):    #03  pc 0001696f  /system/lib/libcamdrv.so(SensorHalImp::searchSensor()+226)
+    I/DEBUG   (  580):    #04  pc 0000838d  /system/lib/hw/camera.default.so(android::CamDeviceManager::getNumberOfCameras()+120)
+    I/DEBUG   (  580):    #05  pc 0001c317  /system/lib/libcameraservice.so(android::CameraService:: onFirstRef()+58)
+    I/DEBUG   (  580):    #06  pc 0000ef2d  /system/lib/libutils.so(android::RefBase::incStrong(void const*) const+38)
+    I/DEBUG   (  580):    #07  pc 00000bc9  /system/bin/mediaserver
+    I/DEBUG   (  580):    #08  pc 00000c87  /system/bin/mediaserver
+    I/DEBUG   (  580):    #09  pc 0001bd98  /system/lib/libc.so (__libc_init+64)
+    I/DEBUG   (  580):    #10  pc 00000aa0  /system/bin/mediaserver
+       这里是程序的调用的so库的堆栈，可以看到最后的段错误发生在libcamdrv.so，这个时候，你尝试着将libcamdrv.so进行替换。如果不行，再换下一个，即camera.default.so，依次类推。
+
+       这个时候你会看到一些提示，比如so库啊，或者少函数。如果是少so库，去百度的或者官方的找一个就是了。如果是少函数，去grep一下，看哪个so库有这个函数，然后将这个so换进去！哈哈~~~实在不行，把错误日志贴到百度去搜索一下！
+
+注意事项：
+有些进程起来是需要带参数的，比如在init.rc中看到有这样一段：
+servicegsm0710muxd /system/bin/gsm0710muxd -s /dev/ttyC0 -f 512 -n 8 -m basic
+
+说明gsm07010muxd这个进程是运行的/system/bin/gsm0710muxd文件，并且带有参数“-s/dev/ttyC0 -f 512 -n 8 -m basic”
+所以在这种情况下，你要跑gsm07010muxd进程，就得在adbshell之后输入：
+/system/bin/gsm0710muxd-s /dev/ttyC0 -f 512 -n 8 -m basic
+当然，由于/system/bin已经加到PATH里面，你不输入/system/bin/也是可以跑gsm0710muxd的。
+
+怎样利用objdump看文件的依赖关系：      
+       在解决某些问题的时候，需要知道so库或者bin之间的依赖关系，有些是动态加载的，是没有办法直接看到的。但是通过链接的so库都可以看到的。
+可以用objdump命令查看，具体方法如下：
+比如我想看surfaceflinger这个bin依赖哪些so库，则可以：
+输入：objdump -x surfaceflinger  |grep NEEDED
+输出：
+NEEDED              libsurfaceflinger.so
+NEEDED               libbinder.so
+NEEDED               liblog.so
+NEEDED               libutils.so
+NEEDED               libc.so
+NEEDED               libstdc++.so
+NEEDED               libm.so
+       你就会知道surfaceflinger依赖于上面这些so库了，当然你如果想知道libsurfaceflinger.so依赖于哪些so库，这种方法同样是可以用的！objdump -x libsurfaceflinger.so | grep NEEDED
+然后尝试去替换一下，哈哈~~~
+
+adb不能用，怎样抓取日志：
+       有些开发者可能觉得修改boot.img提前开启adbd比较麻烦，下面我将教大家一种方法，怎样在adb不能用的时候，抓取日志！
+       一般而言，android都会起动一个install-recovery.sh的服务，所以你只需要在/system/etc/install-recovery.sh里面增加输出日志的，不就可以了嘛！
+如果有install-recovery.sh，则追加上以下语句：
+logcat –v time >> /sdcard/log
+如果没有install-recovery.sh，则新建一个，需要有执行权限哦！内容如下：
+#!/system/bin/sh
+logcat –v time >> /sdcard/log
+
+       在系统运行之后，把你的sdcard拿出来，就可以看到日志了。当然，如果你的手机还不能识别sdcard，你就只能放到/data/local/tmp，然后进到recovery去手动mount /data分区拿出来了！
+如果不会用mount，可以自行百度一下，哈哈~~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

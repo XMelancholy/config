@@ -1,0 +1,3 @@
+
+对于有问题的可以加参数make ，
+make CONFIG_DEBUG_SECTION_MISMATCH=y

@@ -1,0 +1,67 @@
+教程开始：
+1. 查看lun的位置；
+{提示：手机正常开机，输入以下命令}
+~ # busybox find /sys -name "lun*"
+/sys/devices/platform/s3c-usbgadget/gadget/lun0
+/sys/devices/platform/s3c-usbgadget/gadget/lun1
+/sys/devices/platform/s3c-usbgadget/gadget/lun2
+/sys/devices/virtual/android_usb/android0/f_mass_storage/lun0
+/sys/devices/virtual/android_usb/android0/f_mass_storage/lun1
+/sys/devices/virtual/android_usb/android0/f_mass_storage/lun2
+复制代码
+
+
+结果：发现部分手机的输出结果有两个的，比如我的手机K860i现在有
+/sys/devices/platform/s3c-usbgadget/gadget/lun*
+/sys/devices/virtual/android_usb/android0/f_mass_storage/lun*
+复制代码
+
+这个时候要进一步进行查看直接的“挂载点”；
+
+2. 查看手机USB存储时，lun文件上的内容；
+{提示：手机连接电脑，****打开USB存储****，输入以下命令}
+~ # cat /sys/devices/platform/s3c-usbgadget/gadget/lun0/file
+/dev/block/vold/179:1 #内置SD卡
+~ # cat /sys/devices/platform/s3c-usbgadget/gadget/lun1/file
+/dev/block/vold/179:24 #外置SD卡
+~ # cat /sys/devices/platform/s3c-usbgadget/gadget/lun2/file
+/system/media/autorun.iso #光驱
+复制代码
+
+注：cat的时候，要在lun后边添加类似于0/file的结尾，才得到知道输出信息；
+
+结果：这很明显地知道了，这时的手机lun应设置为是/sys/devices/platform/s3c-usbgadget/gadget/lun*才能正确挂载USB存储；
+
+3. 在Recovery的配置文件中，添加lun信息：
+1）若编译MIUI Recovery，在配置文件device.conf中添加：
+ini_set("lun_file",   "/sys/devices/platform/s3c-usbgadget/gadget/lun");
+复制代码
+
+2) 若编译CWM Recovery，在配置文件BoardConfig.mk中添加：
+BOARD_UMS_LUNFILE := "/sys/devices/platform/s3c-usbgadget/gadget/lun%d/file"
+TARGET_RECOVERY_INITRC := device/<厂商>/<型号>/recovery.rc
+复制代码
+
+注：. build/tools/device/mkvendor.sh <厂商> <型号> <recovery.img> ,详阅http://t.cn/zYnTpJm 
+
+4. 在Recovery的配置文件中，修改可挂载USB存储：
+1）MIUI recovery，修改的是root/init.rc文件；
+找到这一行；
+write /sys/class/android_usb/android0/functions adb
+复制代码
+
+修改或添加为以下这行：
+write /sys/class/android_usb/android0/functions mass_storage,adb
+复制代码
+
+2）CWM recovery，修改的是device/<厂商>/<型号>/recovery.rc文件；
+找到这一行；
+write /sys/class/android_usb/android0/functions adb
+复制代码
+
+修改或添加为以下这行：
+write /sys/class/android_usb/android0/functions mass_storage,adb
+复制代码
+
+
+5. 编译出你的Recovery就可以支持USB大容量存储（UMS）了；

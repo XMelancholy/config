@@ -1,0 +1,10 @@
+
+
+
+Tools - File Formats 
+Text Format -Grammar
+Edit
+
+\.line \d.*
+勾选 Match character case
+勾选 Regular expression

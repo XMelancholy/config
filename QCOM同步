@@ -1,0 +1,64 @@
+repo init -u git://codeaurora.org/platform/manifest.git -b release -m M8974AAAAANLYA00050096.xml
+repo init -u git://codeaurora.org/platform/manifest.git -b release -m LNX.LA.3.5.2-02510-8x74.0.xml
+repo init -u git://codeaurora.org/platform/manifest.git -b release -m M8974AAAAANLYA31050194.xml
+
+
+repo init -u git://codeaurora.org/platform/manifest.git -b release -m LNX.LA.3.5.2-02510-8x74.0.xml --repo-url=git://codeaurora.org/tools/repo.git --repo-branch=caf-stable
+
+
+repo init -u git://codeaurora.org/platform/manifest.git -b [branch] -m [manifest] --repo-url=git://codeaurora.org/tools/repo.git --repo-branch=caf-stable
+
+
+
+这里以高通MSM8974芯片的Android为例：
+
+登陆网站：https://www.codeaurora.org
+
+依次选择进入：
+Android for MSM
+wiki
+该网页上显示了各个芯片平台发布的代码分支
+其中通过repo或git的下载方式如下：
+
+Branch Releases
+
+Releases are available for download using Repo and Git. A specific release is downloaded by choosing both a branch and manifest from the Releases table.
+
+$ repo init -u git://codeaurora.org/platform/manifest.git -b [branch] -m [manifest] –repo-url=git://codeaurora.org/tools/repo.git
+$ repo sync
+
+搜索芯片平台关键字8974
+点击进入release分支
+
+比如需要下载如下分支：
+
+Branch     Targets
+release      msm7627a, msm7630, msm8660, msm8660_csfb, msm8960, apq8064, mpq8064, msm8930, msm8625, msm8974
+
+的对应TAG点代码
+
+Date      Tag / Build ID      Chipset      Manifest      Android Version
+May 31, 2013      M8974AAAAANLYA00050096      msm8974     M8974AAAAANLYA00050096.xml     04.02.02
+
+则可以通过如下命令下载（注意建议先新建一个workcode目录）：
+
+$ repo init -u git://codeaurora.org/platform/manifest.git -b release -m M8974AAAAANLYA00050096.xml –repo-url=git://codeaurora.org/tools/repo.git
+
+$ repo sync
+
+
+# qcom kernel
+https://www.codeaurora.org/cgit/quic/la/kernel/msm/tree/arch/arm/mach-msm
+
+
+
+
+
+
+
+
+git clone git://codeaurora.org/quic/la/kernel/msm -b jb_mr1_rb1.68 jb_mr1_rb1.68
+
+
+
+

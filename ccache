@@ -1,0 +1,19 @@
+看了embedded android发现这个ccache的使用方式，可以加速我们c与c++的编译速度原理就是中间文件的一个缓存，是同一个.o文件的话就省去再次编译的速度。
+介于android中c与c++文件数量能占到刚不到一半，所以这个速度还是能省下很多的。
+看到原理大概也就是知道这个东西第一次编译是没有效果的，只有开启ccache后编译一次后就会有效果。
+使用方式：
+添加环境变量：
+
+
+1.$ gedit .bashrc
+
+export USE_CCACHE=1
+#建立缓存目录 
+export CCACHE_DIR=~/.ccache
+
+设置缓存大小：
+3.$cd android/
+4.$prebuilts/misc/linux-x86/ccache/ccache -M 50G
+
+You can watch ccache being used by doing the following:
+$ watch -n1 -d prebuilt/linux-x86/ccache/ccache -s

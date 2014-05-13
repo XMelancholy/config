@@ -1,0 +1,91 @@
+git format-patch -x   生成最后x个提交对应的patch文件。
+diff -Nrua   a  b > c.patch
+git commit -m fixkey
+git diff HEAD > system_core.patch
+git diff HEAD > hardware_libhardware.patch
+git diff HEAD > hardware_libhardware_legacy.patch
+git diff HEAD > frameworks_av.patch
+git diff HEAD > frameworks_native.patch
+
+git config --global user.name "Your Name" 
+git config --global user.email you@yourdomain.example.com 
+
+git format-path -50
+git rm –r * （进入某个目录中，执行此语句，会删除该目录下的所有文件和子目录） 
+git rm f1    (删除文件f1，包含本地目录和index中的此文件记录) 
+git rm --cached f1 (删除文件f1，不会删除本地目录文件，只删除index中的文件记录；将已经git add的文件remove到cache中,这样commit的时候不会提交这个文件, 适用于一下子添加了很多文件, 却又想排除其中个别几个文件的情况.) 
+
+
+
+git checkout –b 新分支名                 #切换本地分支
+git checkout 分支名                        #切换服务器上的分支（远程分支可以通过 git branch -r 列出） 
+git checkout commit_id                 #切换到commit id （使用cat .git/HEAD后，显示commit_id） 
+git checkout tag                          #（使用cat .git/HEAD后，显示tag） 
+git mv xx xxx                #重命名一个文件、目录或者链接。
+git branch                   # 列出本地git库中的所有分支。在列出的分支中，若分支名前有*，则表示此分支为当前分支。
+git branch –r               #列出服务器git库的所有分支。 
+git branch 分支名            #创建一个分支 
+git branch –D 分支名        #删除分支
+git diff 分支名 分支名       #比较主分支和另一个分支的区别
+git-show-branch             #查看当前分支的提交注释及信息） 
+git-show-branch -all        #查看所有分支的提交注释及信息）
+git whatchanged             #查看当前分支的操作记录 
+
+git checkout master &&  git merge cm10      #合并分支 cm10 分支 to master
+git checkout master   （切换到master分支） git merge HEAD ics (合并master分支和ics分支)或者：git merge master ics            #合并分支 
+
+git push origin :cm11.0   删除分支
+
+git branch aokp-jb && git checkout aokp-jb && git merge cm10
+
+
+git pull 合并的目标分支 合并的来源分支 
+例如: git checkout master （切换到master分支） 
+      git pull . ics（合并当前分支和ics分支） 
+git rebase                  #将服务器上的最新版本合并到本地
+git clone URL               #取出服务器的仓库的代码到本地建立的目录中
+
+git pull 
+git push
+git fetch                   #从服务器的仓库中下载代码
+
+git revert HEAD                  撤销前一次 commit
+git revert HEAD^               撤销前前一次 commit
+git revert commit-id
+git revert de9c202dffe536de81dc690bd40db4f610b1438e
+
+git cherry-pick ded17ecc90d39bb93647e6288574a060055793d9
+git cherry-pick 14bc75ea2588f297e041d038817b2996717325b8
+
+
+
+
+
+git cherry-pick <commit id>
+$ git checkout old_cc
+$ git cherry-pick 38361a68     # 这个 38361a68 号码，位于：
+ 
+$ git log 
+commit 38361a68138140827b31b72f8bbfd88b3705d77a 
+Author: Siwei Shen <siwei.shen@focusbeijing.com>
+Date:   Sat Dec 10 00:09:44 2011 +0800
+
+1. 如果顺利，就会正常提交。结果：
+Finished one cherry-pick.
+# On branch old_cc
+# Your branch is ahead of 'origin/old_cc' by 3 commits.
+
+2. 如果在cherry-pick 的过程中出现了冲突
+Automatic cherry-pick failed.  After resolving the conflicts,
+mark the corrected paths with 'git add <paths>' or 'git rm <paths>'
+and commit the result with: 
+
+        git commit -c 15a2b6c61927e5aed6718de89ad9dafba939a90b
+
+就跟普通的冲突一样，手工解决：
+2.1 $ git status    # 看哪些文件出现冲突
+both modified:      app/models/user.rb 
+
+2.2 $ vim app/models/user.rb  # 手动解决它。 
+2.3 $ git add app/models/user.rb
+2.4 git commit -c <新的commit号码>

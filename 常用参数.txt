@@ -1,0 +1,16 @@
+linux下分别实现在多文件中查找关键字
+grep 'xxx' 文件目录 -Rn
+
+递归删除指定目录下的xxx文件
+
+find . -name xxx | xargs rm -fr
+
+找软件
+dpkg -l | grep 关键词
+
+卸载软件
+sudo dpkg -r wine-qqintl:i386
+sudo dpkg -r wine-qq2013-longeneteam
+删除配置文件
+sudo dpkg --purge wine-qqintl:i386
+sudo dpkg --purge wine-qq2013-longeneteam

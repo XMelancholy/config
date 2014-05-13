@@ -1,0 +1,110 @@
+
+本帖最后由 大星星 于 2013-8-5 18:40 编辑
+
+
+情况三，目前还没有现成的device tree，也就是说需要我们自己去做适配，自己来写device tree了，这里以C8813为例。
+
+1、首先是确定手上的机器（这里就是C8813了）是可以刷机的，哪怕现在没有recovery也不要紧，重要的是可以刷进去。比如使用fastboot是可以刷recovery的，或者是可以获取到root权限的，而且是没有相关的校验的（华为海思的，以前的MOTO的机器都是有校验的）。
+2、然后提取一个boot.img或者recovery.img(这里推荐使用recovery.img)，可以是从手机中提取，也可以是从官方包或者第三方的包中提取。如果你碰到的机器是新机，目前连官方包都没有的，但是能获取root权限，就只能是想办法从手机中提取。root后，如果没办法确定boot/recovery分区是哪个，可以用dd命令获取机器上每个分区的头部一段，然后使用十六进制编辑器查看下是否有ANDROID!关键字。如果有，就说明这个分区不是boot分区就是recovery分区了。然后再使用dd命令进行提取。这里就假设我手上的C8813是这个情况（容易获得boot.img或recovery.img的，这一步后面的就可以忽略了），做为一个例子：
+D:\C8813>adb push busybox /data/local/tmp/
+D:\C8813>adb shell
+shell@android:/ $ chmod 755 /data/local/tmp/busybox
+shell@android:/ $ ls /dev/block/
+shell@android:/ $ su
+shell@android:/ # mkdir -p /sdcard/img; cd /dev/block ; for i in `ls mmcblk0p*`; do /data/local/tmp/busybox dd if=/dev/block/$i of=/sdcard/img/$i.img bs=1024 count=512;done
+shell@android:/ # exit
+shell@android:/ $ exit
+D:\C8813>adb pull /sdcard/img
+D:\C8813>adb shell
+shell@android:/ $ su
+shell@android:/ # /data/local/tmp/busybox dd if=/dev/block/mmcblk0p12 of=/sdcard/img/mmcblk0p12.img
+shell@android:/ # /data/local/tmp/busybox dd if=/dev/block/mmcblk0p13 of=/sdcard/img/mmcblk0p13.img
+shell@android:/ # exit
+shell@android:/ $ exit
+D:\C8813>adb pull /sdcard/img/mmcblk0p12.img
+D:\C8813>adb pull /sdcard/img/mmcblk0p13.img
+复制代码
+1.将D:\C8813文件夹下的busybox推送到手机的/data/local/tmp/文件夹下
+2.adb shell进入手机
+3.为/data/local/tmp/下的busybox设置可执行权限
+4.列出/dev/block/下的块设备文件列表，看看哪些是需要留意看看的。这里发现boot好recovery分区必然是在以mmcblk0p开头的块设备中
+5.切换到root用户
+6.这行相对就复杂一些，总的意思就是dd出/dev/block/文件夹下所有以mmcblk0p开头的块设备文件的前512K到/sdcard/img中。
+7.退出root用户
+8.退出手机空间
+9.把文件夹/sdcard/img提取到当前目录下，也就是D:\C8813文件夹下
+提取完了之后，使用WinHex之类的十六进制工具查看，发现mmcblk0p12.img和mmcblk0p13.img的头部有ANDROID!关键字。基本确定boot和recovery就是这两个了。现在开始确认哪个是boot哪个是recovery。
+10.adb shell进入手机
+11.切换到root用户
+12.将块设备文件/dev/block/mmcblk0p12整个dd到/sdcard/img文件夹下，命名为mmcblk0p12.img
+13.将块设备文件/dev/block/mmcblk0p13整个dd到/sdcard/img文件夹下，命名为mmcblk0p13.img
+14.退出root用户
+15.退出手机空间
+16.提取文件/sdcard/img/mmcblk0p12.img提取到当前目录下，也就是D:\C8813文件夹下
+17.提取文件/sdcard/img/mmcblk0p13.img提取到当前目录下，也就是D:\C8813文件夹下
+然后接下来就是把mmcblk0p12.img改名为boot.img，使用厨房解开，看看到底mmcblk0p12是boot还是recovery。在解开的ramdisk文件夹下的sbin目录中并未找到二进制文件recovery，于是可以确定mmcblk0p12为boot分区，那mmcblk0p13自然就是recovery分区了。
+3、开始创建device文件夹。拿到recovery.img后，复制到~/cm10.1文件夹下（这个随意，反正要是一个可以找到路径即可），打开终端：
+xuefy@atx:~$ cd cm10.1
+xuefy@atx:~/cm10.1$ . build/envsetup.sh
+xuefy@atx:~/cm10.1$ lunch full-eng
+xuefy@atx:~/cm10.1$ make -j4 otatools
+xuefy@atx:~/cm10.1$ ./build/tools/device/mkvendor.sh zte NX503A recovery.img
+复制代码
+1.转到cm10.1文件夹
+2.导入CM10.1的环境变量
+3.随便设置一个product。这里就选了一个方便快捷的full了。
+4.编译必需的工具（此步仅在首次编译时需要，或者说是在看到执行第5步提示："unpackbootimg not found. Is your android build environment set up and have the host tools been built?"时需要）
+5.使用自带的脚本创建device文件夹。
+4、开始修改device下的文件。对于编译recovery来说，一般要改的就是BoardConfig.mk和recovery.fstab，由于我之前用的是recovery.img来创建的device文件夹，recovery.fstab用的就是官方recovery中的文件，稍作检查，并没有问题，recovery.fstab这里我就不用修改了，如果你的情况是需要修改，参考下就可以很容易的修改好的。然后接下来就是修改BoardConfig.mk了。
+D:\C8813>adb shell cat /proc/partitions
+复制代码
+这里查看各分区的情况，根据recovery.fstab修改几个参数
+BOARD_BOOTIMAGE_PARTITION_SIZE := 0x105c0000
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x105c0000
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 0x105c0000
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 0x105c0000
+
+修改为（比如看到boot分区的blocks为8192，那它的大小就是8192*1024，换成十六进制就是0x800000了，当然这里不写十六进制而是写十进制也是可以的）：
+BOARD_BOOTIMAGE_PARTITION_SIZE := 0x800000
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 0x1400000
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 0x40000000
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 0x48000000
+
+然后还需要根据recovery.img做一些调整，默认的ramdisk偏移地址为：0x01000000，但是有的机器这个值就不一样，所以可以使用厨房的工具查看下recovery信息。可以看到C8813的ramdisk地址为：0x01200000，内核的基地址为：0x00200000，也就是说ramdisk的偏移地址为：0x01200000-0x00200000=0x01000000，是标准的ramdisk地址，无需再修改，但是如果是其他的地址，可以手动添加一个参数：BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01000000。另外这里发现了一个比较奇怪的情况，C8813的boot.img和recovery.img中的ramdisk地址是不一样的。这个是需要特别注意的，但是现在是编译recovery.img，所以暂时还不用关心boot.img的ramdisk地址。
+上面几个是常见的编译recovery前需要进行的修改（也是我首次编译C8813 recovery前需要做的修改），还有一些则需要根据具体情况看是否要修。
+5、在C8813文件夹下新建一个文件vendorsetup.sh，内容为：
+add_lunch_combo cm_C8813-eng
+复制代码
+6、打开终端，开始编译C8813的recovery：
+xuefy@atx:~$ cd cm10.1
+xuefy@atx:~/cm10.1$ . build/envsetup.sh
+xuefy@atx:~/cm10.1$ lunch cm_C8813-eng
+xuefy@atx:~/cm10.1$ make -j4 recoveryzip
+复制代码
+1.转到cm10.1文件夹
+2.导入CM10.1的环境变量
+3.选择为C8813
+4.编译recovery的zip包，方便调试测试
+7、调试测试开始。没几分钟便编译出recovery的zip包了，位于~/cm10.1/out/target/product/C8813/utilities/update.zip。（配合使用adb sideload命令进行调试很方便的说，当然前提是之前就刷了一个第三方的CWM；如果支持fastboot命令的话，还可以使用fastboot boot recovery.img进行调试测试。如果这两个条件都没有，那就使用dd命令把recovery.img写入手机，再进行调试）。
+8、调试测试，解决问题。首次测试就发现了问题，每上调或下调一个项屏幕就错位。但是幸运的是没有花屏现象，其他功能咋看下也都正常。那就先解决这个错位问题（见此帖：http://forum.xda-developers.com/ ... 597539&postcount=34）。
+复制文件~/cm10.1/bootable/recovery/minui/graphics.c到~/cm10.1/device/huawei/C8813/文件夹下，然后打开~/cm10.1/device/huawei/C8813/graphics.c，定位到函数gr_flip，将
+    if (double_buffering)
+        gr_active_fb = (gr_active_fb + 1) & 1;
+复制代码
+修改注释掉
+//    if (double_buffering)
+//        gr_active_fb = (gr_active_fb + 1) & 1;
+复制代码
+主要原因在于CWM v6.0.3.5默认是开启双buffer支持的，这里我们不需要，所以做了上面的改动。最后还需要在BoardConfig.mk中添加一个参数：BOARD_CUSTOM_GRAPHICS := ../../../device/huawei/C8813/graphics.c
+注：这样操作是因为正常情况都不建议直接修改原代码文件。
+9、重新编译测试，现在不会再有错位的问题了。到这里为止就做出了能用的recovery了，至于其他机器在做的时候遇到了一些其他的问题就需要另外的进行调试分析以及修改了。
+
+
+10、做完了recovery，接下来是要适配完整的系统了。而这个就是最麻烦最需要经验的地方了。】
+而这个没法系统的去说些什么。只有一些建议吧：
+首先是确定自己机器的CPU，看看网络上是否有同型号CPU机器的CM device（当然，非同型号CPU的device也是可以多看看多学习多参考的）。如果有，很好，多看看别人怎么做的，用了哪些参数，这些参数都是干嘛的，需要哪些私有文件，这些私用文件都是干什么的。一般会提供device的作者都是放在github上托管的，一定要查看作者的commit，这样可以帮助你理解一些问题，一些修改。另外，Google会是你最好的学习工具，善用之。遇到问题，找出合适的关键字/词/句，然后在Google、xda-developers、github上搜索，要相信，你会遇到的问题往往都不会是第一次出现的问题，总有人在你之前就遇到了。
+
+对于系统适配部分，真心不是我不想说清楚，是真的没法说清楚，这个有做过适配的人应该可以理解我吧
+
+
+

@@ -1,0 +1,106 @@
+miui系统的适配就是利用小米公司在github上面提供的patchrom然后我们自己做修改，它的原理就是通过反编译生成的smali文件进行对比：
+把我们的系统生成一份smali文件
+miui系统生成一份smali文件
+原生android未做修改的系统也生成一份smali文件
+然后就去对比miui相对原生android做过哪些修改，然后我们就把我们系统对应的smali文件也做相应的修改，从而达到适配的目的。
+现在miui的patchrom的脚本已经很强大了，我们只要改好smali文件后，剩下的一些资源和其他文件miui自己的脚本会自动帮我们加入到我们的工程里面来。
+首先是先使用repo同步miui的patchrom
+mkdir patchrom
+cd patchrom
+repo init -u git://github.com/MiCode/patchrom.git -b ics //同步miui v4
+repo init -u git://github.com/Micode/patchrom.git -b jellybean //同步miui v5
+初始化完了之后开始同步：
+reop sync -j16
+同步好了就可以开始适配之旅了:
+首先配置下环境
+. build/envsetup.sh
+然后新建自己的机型目录
+mkdir u8500
+cd u8500
+然后就是提取官方刷机包：
+先确保手机进入recovery模式，且手机在recovery模式支持adb命令（官方的recpvery一般都不支持，需要制作个cwm的recovery，这个放另一篇文章说）
+在终端的自己的机型目录下：
+../tools/releasetools/ota_target_from_phone -r
+由于有些机器进入RECOVERY过长会重启，则采用开机提取的方法：
+../tools/releasetools/ota_target_from_phone -n
+出现下列参数：输入YES即可
+Warning: the ota package will not contain bootimage!!!
+Maybe you forget to pass the ota-package parameter.
+Are you sure this is really what you want(yes/no):yes
+等待提取成功，会在我们的机型目录下成功一个stockrom.zip，这个就是我们的ROM包，还会生成一个metadata目录，里面主要记录一些我们手机的分区信息和签名信息，这两个不文件不能删了，后续生成自己的ROM包需要用。
+然后从工程的android/目录下拷贝一个makefile文件到我们的手机目录，把里面的这一项
+local-zip-file := null.zip改成
+local-zip-file := stockrom.zip
+然后我们就可以反编译我们刚刚提取出来的官方包了：
+同步MTK的源码就不用这步了。
+反编译前来个插曲：由于我们的系统是AOSP的底包，所以还要对build/目录下的porting.mk文件的
+MIUI_JARS := services android.policy framework framework2
+改成
+MIUI_JARS := services android.policy framework framework_ext
+改好后就可以在终端敲入：
+make workspace
+反编译后在我们的目录下就会生成反编译的目录，以后我们的插桩就是对这些文件进行patch
+然后终端敲入：
+make firstpatch
+时间有点长，等待完成。
+完成后会在机型目录下生成一个temp目录
+里面有四个文件夹：
+dst_smali_orig //这个是我们的系统反编译的smali文件
+dst_smali_patched //这个是我们执行make firstpatch命令有脚本自动给我们打的patch
+new_smali //这个是miui系统反编译的smali文件
+old_smali //这个是android原生的反编译的smali文件
+reject //这个是make firstpatch自动打patch失败的smali文件
+我们需要关注的就是reject目录，把自动patch打入失败的我们手动加进去，失败的原因就是因为我们的系统对于那部分有过修改，所以上下文对不上，加不进去。
+手动加入patch的步骤就是先看miu系统和原生的android的区别，然后再看我们的系统跟原生的区别，我们就根据这两点把失败patch的加进去。
+举一个例子：
+在temp下的
+reject/android.policy.jar.out/smali/com/android/internal/policy/impl/有这个一个patch没打上
+KeyguardUpdateMonitor.smali.rej
+双击打开看到里面有这个的话：
+*** 93,98 ****
+.end annotation
+.end field
+.field private mTelephonyPlmn:Ljava/lang/CharSequence;
+.field private mTelephonySpn:Ljava/lang/CharSequence;
+— 94,105 —-
+.end annotation
+.end field
++ .field private mSkipSimStateChange:Z
++ .annotation build Landroid/annotation/MiuiHook;
++ value = .enum Landroid/annotation/MiuiHook$MiuiHookType;-NEW_FIELD:Landroid/annotation/MiuiHook$MiuiHookType;
++ .end annotation
++ .end field
++
+.field private mTelephonyPlmn:Ljava/lang/CharSequence;
+.field private mTelephonySpn:Ljava/lang/CharSequence;
+这个跟我们的gitk一样的标注，我们就是要在我们机型目录下的android.policy.jar.out/smali/com/android/internal/policy/impl/
+在KeyguardUpdateMonitor.smali里面相应的位置加入这几条语句：
+.field private mSkipSimStateChange:Z
+.annotation build Landroid/annotation/MiuiHook;
+value = .enum Landroid/annotation/MiuiHook$MiuiHookType;-NEW_FIELD:Landroid/annotation/MiuiHook$MiuiHookType;
+.end annotation
+.end field
+我建议是每加入一处编译一次，成功了就继续加，失败了就找原因，因为反编译回去的时候报错是天书，看不懂的，如果一次改动太多文件才编译最后就不知道是哪个文件报的错了。
+反编译测试有没有报错是在我们的机型目录下：
+假设我们手动patch的是 android.policy.jar.out这个目录
+在终端就输：
+apktool b android.policy.jar.out
+能通过就行。
+等我们把temp目录下所有的.smali.rej手动加入完成之后就可以在终端输入：
+make fullota
+完成了在机型目录的out文件夹下的
+fullota.zip就是我们需要的ROM包了，刷入后就是适配好了的miui系统。（当然会是各种卡屏，FC，我们只能通过logcat日志再重新分析插桩的问题，重新修改再编译，最后肯定是可以适配完成的）
+
+
+java -jar ../tools/smali.jar android.policy.jar.out
+java -jar ../tools/smali.jar framework.jar.out
+java -jar ../tools/smali.jar framework2.jar.out
+java -jar ../tools/smali.jar services.jar.out
+
+
+
+
+
+
+
+

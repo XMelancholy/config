@@ -1,0 +1,56 @@
+frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+<bool name="def_dim_screen">true</bool> 自动关屏 开
+
+<bool name="def_airplane_mode_on">false</bool> 飞行模式 关
+
+<bool name="def_auto_time">true</bool> 自动适应时间 开
+
+<bool name="def_acceleROMeter_rotation">true</bool> 重力感应
+<bool name="def_screen_brightness_automatic_mode">true</bool> 自动亮度调节
+
+<bool name="def_haptic_feedback">false</bool> 触动反馈关
+
+<bool name="def_bluetooth_on">false</bool> 蓝牙关
+
+<bool name="def_install_non_market_apps">false</bool> 安装非市场apk关
+
+
+<bool name="def_usb_mass_storage_enabled">true</bool> usb存储模式开 
+
+<bool name="def_wifi_on">false</bool> wifi 关 
+
+<bool name="def_networks_available_notification_on">true</bool> 
+
+<bool name="def_backup_enabled">true</bool> 保存开
+
+<bool name="def_notification_pulse">true</bool> 震动提醒 开
+
+
+<bool name="def_mount_play_notification_snd">false</bool> 
+
+<bool name="def_mount_ums_autostart">false</bool> 自动重启 关
+
+<bool name="def_mount_ums_prompt">true</bool>
+<bool name="def_mount_ums_notify_enabled">true</bool>
+<bool name="def_notifications_use_ring_volume">true</bool> 声音提醒开 
+
+<bool name="def_vibrate_in_silent">true</bool> 无声震动
+<bool name="def_device_provisioned">true</bool> 设置提供
+
+<bool name="assisted_gps_enabled">true</bool> gps定位开关
+<string name="def_location_providers_allowed">gps</string>，关闭GPS,修改gps为null
+
+<integer name="def_screen_off_timeout">60000</integer> 自动关屏幕时间 1分钟
+<integer name="def_screen_brightness">102</integer> 屏幕亮度 102
+<integer name="def_network_preference">1</integer> 网络默认选择第一项
+<integer name="def_power_sounds_enabled">1</integer> 低电量声音开
+<integer name="def_dock_sounds_enabled">0</integer> 
+<integer name="def_lockscreen_sounds_enabled">0</integer> 锁屏声音
+
+
+<fraction name="def_window_animation_scale">100.0%</fraction>
+<fraction name="def_window_transition_scale">100.0%</fraction>
+改为
+<fraction name="def_window_animation_scale">0.0%</fraction>
+<fraction name="def_window_transition_scale">0.0%</fraction>
+可以关闭所有窗口动画
