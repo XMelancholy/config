@@ -25,8 +25,8 @@ git diff 分支名 分支名       #比较主分支和另一个分支的区别
 git-show-branch             #查看当前分支的提交注释及信息） 
 git-show-branch -all        #查看所有分支的提交注释及信息）
 git whatchanged             #查看当前分支的操作记录 
-git config --global color.ui true   高亮
-
+git config --global color.ui true   #高亮
+git remote add origin URL     #push地址
 
 
 
