@@ -1,6 +1,11 @@
 linux下分别实现在多文件中查找关键字
 grep 'xxx' 文件目录 -Rn
 
+grep 'sk_for_each' . -Rn
+
+grep 'st_cscall_host' . -Rn
+grep 'audiomodem_driver' . -Rn
+
 递归删除指定目录下的xxx文件
 
 find . -name xxx | xargs rm -fr

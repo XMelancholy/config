@@ -21,7 +21,7 @@ Bluetooth(Android 4.1)问题汇总
 捉 LOG  Kernel 的启动LOG， 在串口中会有输出， 
 蓝牙的 rfkill-rk 驱动， 其打印以字符串 可搜索之；如
 果你用“adb shell”来查看 log，可先切换到 root 后，用“cat /proc/kmsg” 打印kernel 的LOG。  
-Android 中关于蓝牙的 LOG，可通过如下命令打印：   logcat -s blue* Blue* Bt* bt* &   
+Android 中关于蓝牙的 LOG，可通过如下命令打印：   logcat -s blue* Blue* Bt* bt* bl* &   
 如果你的 Android 的 logcat 命令不支持星号通配符，请修改system/core/liblog/logprint.c 文件，如下所示：  
 static android_LogPriority filterPriForTag( 
 AndroidLogFormat *p_format, const char *tag) 
@@ -63,6 +63,7 @@ setprop ctl.stop ste-cg29xx_ctrl
 
 setprop ctl.stop init_ste-cg2900
 
+setprop ctl.start hciattach
 setprop ctl.start ste-cg29xx_ctrl
 
 确定蓝牙已经关闭之后，手动给蓝牙上电： 
