@@ -99,8 +99,8 @@ java -jar ../tools/smali.jar services.jar.out
 
 
 
-
-
-
-
+../tools/rmline.sh android.policy.jar.out
+../tools/rmline.sh framework.jar.out
+../tools/rmline.sh framework2.jar.out
+../tools/rmline.sh services.jar.out
 

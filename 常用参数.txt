@@ -3,12 +3,14 @@ grep 'xxx' 文件目录 -Rn
 
 grep 'sk_for_each' . -Rn
 
-grep 'st_cscall_host' . -Rn
-grep 'audiomodem_driver' . -Rn
+grep 'deint_info' . -Rn
+grep '-DUSE_CHINESE_FONT' . -Rn
 
 递归删除指定目录下的xxx文件
 
 find . -name xxx | xargs rm -fr
+find . -name .git | xargs rm -fr
+
 
 找软件
 dpkg -l | grep 关键词
