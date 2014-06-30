@@ -12,6 +12,8 @@ git rm --cached f1 (删除文件f1，不会删除本地目录文件，只删除i
 
 
 
+git log --pretty=oneline kernel/sys.c
+
 git checkout –b 新分支名                 #切换本地分支
 git checkout 分支名                        #切换服务器上的分支（远程分支可以通过 git branch -r 列出） 
 git checkout commit_id                 #切换到commit id （使用cat .git/HEAD后，显示commit_id） 
@@ -29,6 +31,16 @@ git config --global color.ui true   #高亮
 git remote add origin URL     #push地址
 
 
+回滚commit到xx
+git revert commit_id
+git push origin branch_name --force  # --force 更新远程仓库
+
+如果刚才提交时忘了暂存某些修改，可以先补上暂存操作，然后再运行 --amend 提交：
+
+$ git commit -m 'initial commit'
+$ git add forgotten_file
+$ git commit --amend
+上面的三条命令最终只是产生一个提交，第二个提交命令修正了第一个的提交内容。
 
 
 git checkout master &&  git merge cm10      #合并分支 cm10 分支 to master
@@ -54,32 +66,10 @@ git revert HEAD^               撤销前前一次 commit
 git revert commit-id
 git revert de9c202dffe536de81dc690bd40db4f610b1438e
 
-git cherry-pick e97212ff7dabab53bd0a2bf290baf07f8aac7981
-git cherry-pick a321df520a8c6f88dfbad092dcf03f187d01a7a3
 
-git cherry-pick 6c686cff8807defa60b5b6074afae66d290ebd57
-git cherry-pick 334f2c57c77ba5ec0824ff5690028725a8fd50b3
 
-git cherry-pick 8e7861217108dda2b39b6f2130f2567dc8d82e62
-git cherry-pick a7bff97c3dfdeca4c7ba8009fb4acfae6cbf6e28
-
-git cherry-pick c38af68f83e32bbc34d284af898c3db1286b93f6
-git cherry-pick a7922ebcabeb3ce0cfe0d6d80c1ddfaadab1fc4b
-
-git cherry-pick 3a59adc2c1f8c29c8756822848be29d58e7eba4f
-git cherry-pick 5c2e8212678e84a06374b322fe106a42d34f0d9b
-
-git cherry-pick 0ec6f740218f152efed9a4fe6836596727f7e000
-git cherry-pick 267dbf8f5be238b1b9e9cc1c874b911e1251b092
-git cherry-pick 00a8527f4bdddf2af9fe39a9aec1227dd8b956b9
-git cherry-pick c0157df1f9b9fb9d765fa2f2fc6d9ec0ce1e399f
-git cherry-pick 4590599440d44d0f6eec4feb33bec1a8fe55f01a
-git cherry-pick e3a7ceea207db16fed0fc01898f21e9748bdc8cd
-git cherry-pick 17d02dacc0419e409dcc5f47cc4f07fdae4ea693
-git cherry-pick 4d3276fbd7beeb752671c3508c531673ce75d34f
-git cherry-pick 
-git cherry-pick 
-git cherry-pick 
+git cherry-pick 开始commit^..终止commit
+如果开始commit右面不加箭头就是左开右闭
 
 
 
@@ -111,3 +101,104 @@ both modified:      app/models/user.rb
 2.2 $ vim app/models/user.rb  # 手动解决它。 
 2.3 $ git add app/models/user.rb
 2.4 git commit -c <新的commit号码>
+
+
+# linux 3.4
+76e10d158efb6d4516018846f60c2ab5501900bc
+
+
+# android 3.10   3.4 commit
+76e10d158efb6d4516018846f60c2ab5501900bc
+
+# 合并b
+git rebase android-3.4
+
+# 处理完冲突继续合并
+git rebase --continue
+
+# 跳过
+git rebase --skip
+
+# 取消合并
+git rebase --abort
+
+
+git merge-base origin/test2 origin/android-3.4
+
+
+e3f681ae691bd64d1dc06bab9ad4c98ad4effa82 a2425ffd6902717115f079c618b0f07126724e7c
+
+
+
+git cherry-pick commit_id^..commit_id
+
+
+git cherry-pick --continue
+git cherry-pick --quit
+
+git cherry-pick --allow-empty ^..
+
+
+
+
+git cherry-pick a72f0d4f070d9ca35690a636d69fede3688d2bec
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick aafdf5083df50853ad46fb556f0c4f7fb89b7c30
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 
+git cherry-pick 9f032c5e257f1d3f729f70dd244310dc135d8196
+git cherry-pick bdf7d502c35ac220a707d175b0ef2509dc88ef74
+git cherry-pick 9f032c5e257f1d3f729f70dd244310dc135d8196
+git cherry-pick 2631f1c87a6aec44da61c00f8b77475630ce921d^..32b7a6bda40a81db06cde57abc31c5c8cc4e0d2f
+
+git cherry-pick --continue
+git cherry-pick --quit
+
+
+# Linux 3.4
+76e10d158efb6d4516018846f60c2ab5501900bc
+
+
+
+
+
+git log --pretty=oneline arch/arm/configs/cm_u8500_defconfig
+git log --pretty=oneline arch/arm/common/fiq_debugger.c
+
+
+
+
+
+
+
+重置到Linux 3.4.39
+be77d2a32f17b946fec4bfe28c79de91252c080c
+
+
+
+
+git merge --no-ff
+
+https://www.kernel.org/pub/linux/kernel/v3.x/stable-review/
+
+https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git
+http://malideveloper.arm.com/cn/develop-for-mali/drivers/open-source-mali-gpus-linux-kernel-device-drivers/
