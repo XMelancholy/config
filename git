@@ -158,17 +158,15 @@ git cherry-pick
 git cherry-pick 
 git cherry-pick 
 git cherry-pick 
-git cherry-pick aafdf5083df50853ad46fb556f0c4f7fb89b7c30
 git cherry-pick 
 git cherry-pick 
 git cherry-pick 
 git cherry-pick 
 git cherry-pick 
 git cherry-pick 
-git cherry-pick 9f032c5e257f1d3f729f70dd244310dc135d8196
-git cherry-pick bdf7d502c35ac220a707d175b0ef2509dc88ef74
-git cherry-pick 9f032c5e257f1d3f729f70dd244310dc135d8196
-git cherry-pick 2631f1c87a6aec44da61c00f8b77475630ce921d^..32b7a6bda40a81db06cde57abc31c5c8cc4e0d2f
+git cherry-pick 011ca51c345eeae6838c929bb2114a5541b47039
+git cherry-pick 1723add5abbbe9783480a707a3153a5cf02bcb09^..7f270f72593ec81f7f12f554078cf4fbf4411672
+
 
 git cherry-pick --continue
 git cherry-pick --quit
@@ -177,24 +175,27 @@ git cherry-pick --quit
 # Linux 3.4
 76e10d158efb6d4516018846f60c2ab5501900bc
 
+# Linux bluez
+合并完成
+d839c81372d1f0caee47f87b26a68e91d4ff3847 Bluetooth: Report proper error number in disconnection
+
+1d0c4da8f717937aeda47a72bc769d80f8776795　Bluetooth: Fix style in hidp code
+
+
+
+
+
+
+
+
+
 
 
 
 
 git log --pretty=oneline arch/arm/configs/cm_u8500_defconfig
-git log --pretty=oneline arch/arm/common/fiq_debugger.c
-
-
-
-
-
-
-
-重置到Linux 3.4.39
-be77d2a32f17b946fec4bfe28c79de91252c080c
-
-
-
+git log --pretty=oneline drivers/bluetooth
+git log --pretty=oneline kernel/sys.c
 
 git merge --no-ff
 

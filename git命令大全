@@ -1,0 +1,8 @@
+git init			#Git 版本库初始化命令
+git add .			#添加文件,执行git add命令将修改内容加入提交暂存区。执行 git add -u 命令可以将所有修改过的文件加入暂存区，执行 git add -A命令可以将本地删除文件和新增文件都登记到提交暂存区，执行git add -p命令甚至可以对一个文件内的修改进行有选择性的添加。 
+git commit m "initial"		#提交
+git tag xx			#创建tag
+git commit --amend 		#重写提交说明,命令如果不带-m参数，会进入提交说明编辑界面
+git rm --cached xx.zip		#清除缓存中的xx.zip,用于git add 过后添加了错误的文件．若是已经commit过后的了，则需要用到git commit --amend
+
+

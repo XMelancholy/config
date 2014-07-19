@@ -15,17 +15,17 @@ $ sudo apt-get install openjdk-6-jre-headless openjdk-6-jdk
 $ sudo apt-get purge openjdk-\* icedtea-\* icedtea6-\*
 
 下载jdk1.6.0_45.bin
-$ chmod 777 jdk-6u45-linux-x64.bin && ./jdk-6u45-linux-x64.bin                    #给.bin文件权限,运行.bin文件，得到jdk1.6.0_45文件夹                  
+$ chmod 777 jdk-6u45-linux-x64.bin && ./jdk-6u45-linux-x64.bin
 
-$ sudo cp -r ~/android/jdk1.6.0_45 /usr/lib/jvm
+$ sudo cp -r jdk1.6.0_45 /usr/lib/jvm
 
-$ gedit .bashrc
+$ gedit ~/.bashrc
 
 # Java 环境
 export JAVA_HOME=/usr/lib/jvm/jdk1.6.0_45
 export PATH=$PATH:$JAVA_HOME/bin
 
-$ source .bashrc                               #更新环境
+$ source ~/.bashrc                               #更新环境
 
 $ sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk1.6.0_45/bin/java 1062
 $ sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/jdk1.6.0_45/bin/javac 1062
@@ -56,7 +56,7 @@ $ cp -r 下载/adt-bundle-linux-x86_64-20130917/* android && rm -rf 下载/adt-b
 
 ### 加入SDK到环境变量
 
-$ gedit .bashrc
+$ gedit ~/.bashrc
 
 ### Android SDK环境变量
 export PATH=${PATH}:~/android/sdk/tools
@@ -220,7 +220,7 @@ http://packages.linuxdeepin.com/deepin/pool/main/d/deepin-ui/deepin-ui_1%2bgit20
 .ssh方式提交
 
 SSH添加
-mkdir.ssh
+mkdir .ssh
 cd .ssh
 ssh-keygen -t rsa -C xiangxin19960319@gmail.com
 注意中途会有一个确认 请选择Y，其余的回车

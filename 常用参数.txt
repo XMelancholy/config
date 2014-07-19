@@ -1,10 +1,10 @@
 linux下分别实现在多文件中查找关键字
 grep 'xxx' 文件目录 -Rn
 
-grep '#include <linux/wakelock.h>' . -Rn
+grep 'NICE' . -Rn
 
-grep 'STD_A2DP_MNGT' . -Rn
-grep 'UEVENT_HELPER_PATH' . -Rn
+grep 'ste_cscall' . -Rn
+grep 'SHM netlnk' . -Rn
 
 递归删除指定目录下的xxx文件
 
