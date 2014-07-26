@@ -1,0 +1,23 @@
+一: 添加cinnamon的ppa源:
+sudo add-apt-repository ppa:gwendal-lebihan-dev/cinnamon-stable # 会提示确认, 直接按回车键
+
+二: 更新本地源缓存
+sudo apt-get update
+
+三: 安装meld, nemo扩展
+sudo apt-get install nemo-compare meld #默认使用meld比较
+
+四: 重启Nemo
+killall nemo 
+nemo
+
+此时随意选中两个文件, 然后点击右键, 会出现一个compare选项, 点击会打开meld进行比较, 也可以单个选择文件或目录, 和windows下beyond compare右键操作一样, 只是变成了英文而已.
+五: 使用beyond compare进行比较
+vi .config/nemo-compare.conf # 若文件不存在, 记得先随意比较两个文件, 来生成配置 
+[Settings] 
+diff_engine_path = bcompare 
+diff_engine_path_3way = bcompare 
+diff_engine_path_multi = #此处可留空, 也可输入which bcompare后得到的值 
+defined_comparators = ['bcompare', 'meld']
+
+重启nemo(第四步), 再次比较文件文件后, 打开的窗口就是beyond compare了. 牛逼透了, 所有的设置都是这么简单...

@@ -13,7 +13,7 @@ export CCACHE_DIR=~/.ccache
 
 设置缓存大小：
 3.$cd android/
-4.$prebuilts/misc/linux-x86/ccache/ccache -M 50G
+4.$prebuilts/misc/linux-x86/ccache/ccache -M 30G
 
 You can watch ccache being used by doing the following:
 $ watch -n1 -d prebuilt/linux-x86/ccache/ccache -s

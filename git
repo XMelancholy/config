@@ -2,14 +2,22 @@ git format-patch -x   生成最后x个提交对应的patch文件。
 diff -Nrua   a  b > c.patch
 git commit -m "xx"
 
-git config --global user.name "Your Name" 
-git config --global user.email you@yourdomain.example.com 
+git config --global user.name xiangxin19960319
+git config --global user.email xiangxin19960319@gmail.com
 
 git format-path -50
 git rm –r * （进入某个目录中，执行此语句，会删除该目录下的所有文件和子目录） 
 git rm f1    (删除文件f1，包含本地目录和index中的此文件记录) 
 git rm --cached f1 (删除文件f1，不会删除本地目录文件，只删除index中的文件记录；将已经git add的文件remove到cache中,这样commit的时候不会提交这个文件, 适用于一下子添加了很多文件, 却又想排除其中个别几个文件的情况.) 
 
+
+git设置文本颜色
+在home目录下修改.gitconfig
+添加以下代码：
+[color]
+	diff = auto
+	status = auto
+	branch = auto
 
 
 git log --pretty=oneline kernel/sys.c
@@ -165,7 +173,7 @@ git cherry-pick
 git cherry-pick 
 git cherry-pick 
 git cherry-pick 011ca51c345eeae6838c929bb2114a5541b47039
-git cherry-pick 1723add5abbbe9783480a707a3153a5cf02bcb09^..7f270f72593ec81f7f12f554078cf4fbf4411672
+git cherry-pick fd7afe29185bf592cb13a698f9a34dc60758447e^..0758142f8a850928b886978753b1d8c473d6eee2
 
 
 git cherry-pick --continue

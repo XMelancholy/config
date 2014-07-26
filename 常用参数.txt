@@ -1,6 +1,12 @@
 linux下分别实现在多文件中查找关键字
 grep 'xxx' 文件目录 -Rn
 
+grep 'ENABLE_FEATURE_BUILD_HATS' . -Rn
+
+grep 'MMPROBE_ENABLE_FEATURE_MMPROBE' . -Rn
+grep 'CSCALL_ENABLE_SILENT_REBOOT_SUPPORT' . -Rn
+grep 'INSTALL_AUDIO_SCRIPTS' . -Rn
+
 grep 'NICE' . -Rn
 
 grep 'ste_cscall' . -Rn
@@ -8,7 +14,7 @@ grep 'SHM netlnk' . -Rn
 
 递归删除指定目录下的xxx文件
 
-find . -name xxx | xargs rm -fr
+find . -name .git | xargs rm -fr
 find . -name .gitignore | xargs rm -fr
 
 
