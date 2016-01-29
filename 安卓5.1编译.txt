@@ -1,0 +1,218 @@
+### 首先搭建安卓编译环境
+
+1：自动安装JDK  
+sudo apt-get install openjdk-7-jdk openjdk-7-jre-headless
+sudo apt-get install openjdk-6-jdk openjdk-6-jre openjdk-6-jre-headless
+$ gedit ~/.bashrc
+
+# Java 环境
+export JAVA_HOME=/usr/lib/jvm/jdk1.6.0_45
+export PATH=$PATH:$JAVA_HOME/bin
+
+$ source ~/.bashrc                               #更新环境
+
+####jdk7
+$ sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-7-openjdk-amd64/bin/java 10621
+$ sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-7-openjdk-amd64/bin/javac 1062
+
+###jdk6
+$ sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-6-openjdk-amd64/bin/java 10621
+$ sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/java-6-openjdk-amd64/bin/javac 1062
+
+######################################################################
+2：安装依赖库 ,安装安卓环境等一些必要的库，虽然很多用不上，但是总比有错误好吧！在这里要注意了，目前请不要升级到ubuntu 13.10，不要问我为什么，我因为这个重装了 N次系统了！否则对于初次接触的你会很头疼！
+
+
+
+$ sudo apt-get install libxml2-utils lzop
+$ sudo apt-get install git git-core gnupg flex bison gperf libsdl1.2-dev libesd0-dev libwxgtk2.8-dev squashfs-tools build-essential zip curl libncurses5-dev zlib1g-dev pngcrush schedtool libxml2 xsltproc
+$ sudo apt-get install g++-multilib lib32z1-dev lib32ncurses5-dev lib32readline-gplv2-dev gcc-multilib
+##sudo apt-get install gcc-4.4 g++-4.4 g++-4.4-multilib
+$ sudo apt-get install python-pip
+$ sudo apt-get install bison gperf libxml2-utils make python-networkx zlib1g-dev:i386 zip
+如果执行有问题，按照提示执行
+sudo apt-get update –fix-missing
+
+
+$ sudo apt-get install git-core gnupg flex bison gperf zip curl zlib1g-dev zlib1g-dev:i386 libc6-dev lib32ncurses5-dev x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 lib32z-dev libgl1-mesa-glx:i386 libgl1-mesa-dev mingw32 tofrodos python-markdown libxml2-utils xsltproc readline-common libreadline6-dev libreadline6 lib32readline-gplv2-dev libncurses5-dev lib32readline5 lib32readline6 libreadline-dev libreadline6-dev:i386 libreadline6:i386 bzip2 libbz2-dev libbz2-1.0 lib32bz2-dev libsdl1.2-dev libesd0-dev squashfs-tools pngcrush schedtool libwxgtk2.8-dev python lzop libssl-dev g++-multilib build-essential libghc-bzlib-dev liblcms2-2:i386
+ia32-libs 
+#linux mint
+
+
+安装完毕后有一定几率出现
+正在处理用于 某某 的触发器...
+在处理时有错误发生：
+$ sudo apt-get -f install
+
+### 创建软链接
+$ sudo ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
+
+###########################################################################
+3: 安装android SDK
+下载地址：http://developer.android.com/sdk/index.html
+
+一般来说下载到"下载"文件夹
+
+$ unzip 下载/adt-bundle-linux-x86_64-20130917.zip        #解压后得到adt-bundl……文件夹
+$ mkdir android                        #创建android文件夹
+$ cp -r 下载/adt-bundle-linux-x86_64-20130917/* android && rm -rf 下载/adt-bundle-linux-x86_64-20130917                  #将文件夹复制到android，删除文件夹！
+
+### 加入SDK到环境变量
+
+$ gedit ~/.bashrc
+
+### Android SDK环境变量
+export PATH=${PATH}:~/android/android-sdk-linux/tools
+export PATH=${PATH}:~/android/android-sdk-linux/platform-tools
+
+### 添android SDK路径
+PATH="$HOME/android/sdk/tools:$HOME/android/android-sdk-linux/platform-tools:$PATH"
+
+$ source .bashrc
+
+#######################################################################
+4: ####配置USB
+$ lsusb
+$ lsusb        这一步是需要你将手机插到电脑，并且开启USB调试！然后比较两次哪里不一样！记住，我得到的是  0fce 和  5171 
+$ sudo gedit /etc/udev/rules.d/51-android.rules
+###添加下面的文件
+
+
+#Garmin-Asus
+SUBSYSTEM=="usb", ATTR{idVendor}=="091E", MODE="0666"
+
+#Google
+SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", MODE="0666"
+
+#HTC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666"
+
+#Huawei
+SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", MODE="0666"
+
+#K-Touch
+SUBSYSTEM=="usb", ATTR{idVendor}=="24e3", MODE="0666"
+
+#KT Tech
+SUBSYSTEM=="usb", ATTR{idVendor}=="2116", MODE="0666"
+
+#Kyocera
+SUBSYSTEM=="usb", ATTR{idVendor}=="0482", MODE="0666"
+
+#Lenevo
+SUBSYSTEM=="usb", ATTR{idVendor}=="17EF", MODE="0666"
+
+#LG
+SUBSYSTEM=="usb", ATTR{idVendor}=="1004", MODE="0666"
+
+#Motorola
+SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", MODE="0666"
+
+#NEC
+SUBSYSTEM=="usb", ATTR{idVendor}=="0409", MODE="0666"
+
+#Nook
+SUBSYSTEM=="usb", ATTR{idVendor}=="2080", MODE="0666"
+
+#Nvidia
+SUBSYSTEM=="usb", ATTR{idVendor}=="0955", MODE="0666"
+
+#OTGV
+SUBSYSTEM=="usb", ATTR{idVendor}=="2257", MODE="0666"
+
+#Pantech
+SUBSYSTEM=="usb", ATTR{idVendor}=="10A9", MODE="0666"
+
+#Philips
+SUBSYSTEM=="usb", ATTR{idVendor}=="0471", MODE="0666"
+
+#PMC-Sierra
+SUBSYSTEM=="usb", ATTR{idVendor}=="04da", MODE="0666"
+
+#Qualcomm
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", MODE="0666"
+
+#SK Telesys
+SUBSYSTEM=="usb", ATTR{idVendor}=="1f53", MODE="0666"
+
+#Samsung
+SUBSYSTEM=="usb", ATTR{idVendor}=="04e8", MODE="0666"
+
+#Sharp
+SUBSYSTEM=="usb", ATTR{idVendor}=="04dd", MODE="0666"
+
+#Sony Ericsson
+SUBSYSTEM=="usb", ATTR{idVendor}=="0fce", MODE="0666"
+
+#Toshiba
+SUBSYSTEM=="usb", ATTR{idVendor}=="0930", MODE="0666"
+
+#ZTE
+SUBSYSTEM=="usb", ATTR{idVendor}=="19d2", MODE="0666"
+
+#SNDA
+SUBSYSTEM=="usb", ATTR{idVendor}=="230b", MODE="0666"
+
+#Nokia
+SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", MODE="0666"
+
+
+$ sudo chmod 777 /etc/udev/rules.d/51-android.rules         ##给权限
+$ sudo service udev restart                            ##重启服务
+$ adb devices                                   #这一步检查USB是否配置好
+如果提示下面
+????????????	no permissions
+
+cd android/sdk/platform-tools
+sudo ./adb kill-server
+sudo ./adb devices
+
+或者 
+sudo cp android/sdk/platform-tools/adb /bin/adb
+sudo chmod 777 /bin/adb
+sudo su
+adb kill-server
+adb devices
+
+
+##########################################################################
+5：下载安装repo
+$ mkdir ~/bin
+$ echo "export PATH=\$PATH:~/bin" >> ~/.bashrc
+$ source ~/.bashrc
+$ curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo    #这一步是下载repo到bin文件夹，很多时候国内并不可以！需自己手动下载放到bin文件夹，给出一个地址！
+http://pan.baidu.com/s/1eNZpP   
+
+$ chmod a+x ~/bin/repo
+
+万事具备只欠源码了！下章继续讲！！！
+
+
+换源  
+$ sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
+$ sudo gedit /etc/apt/sources.list
+
+查看离你最近的
+
+http://wiki.ubuntu.org.cn/源列表
+
+# 12.10
+http://wiki.ubuntu.org.cn/Template:12.10source
+
+# 12.04
+http://wiki.ubuntu.org.cn/Template:12.04source
+
+$ sudo apt-get update
+
+.ssh方式提交
+
+SSH添加
+mkdir .ssh
+cd .ssh
+ssh-keygen -t rsa -C xiangxin19960319@gmail.com
+注意中途会有一个确认 请选择Y，其余的回车
+ssh-add id_rsa
+sudo apt-get install xclip
+xclip -sel clip < ~/.ssh/id_rsa.pub
+然后在你的GITHUB上添加SSH  id_rsa.pub的内容
+ssh -T git@github.com
